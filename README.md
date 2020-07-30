@@ -32,6 +32,7 @@ The Forest R-CNN config is in [configs/lvis](configs/lvis).
     
     # multi-gpu training
     ./tools/dist_train.sh configs/lvis/forest_rcnn_r50_fpn.py ${GPU_NUM} --validate
+(Note that we found in our experiments the best result is around the 20-th epoch instead of the end of the training.)
     
     
     
