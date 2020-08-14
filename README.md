@@ -139,8 +139,6 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 
 </tbody></table>
 
-Due to the space limit for free account in Dropbox, we only release the models of our method.
-
 ## Visualized Examples
 ![](examples.png)
 
