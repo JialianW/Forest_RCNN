@@ -8,8 +8,6 @@ Jialian Wu, Liangchen Song, Tiancai Wang, Qian Zhang and Junsong Yuan
 \
 In ACM International Conference on Multimedia , Seattle WA, October 12-16, 2020.
 
-Paper is coming soon!
-
 ## Installation 
 Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparation.
 
