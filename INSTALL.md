@@ -50,7 +50,7 @@ python setup.py develop  # or "pip install -v -e ."
 ### Prepare datasets
 
 The images of LVIS are the same as those of COCO. Note that the LVIS version has been updated to v1.0, 
-while our experiments are conducted based on v0.5. We therefore provide the annotations of the LVIS v0.5 that can be found [here]()
+while our experiments are conducted based on v0.5. We therefore provide the annotations of the LVIS v0.5 that can be found [here](https://drive.google.com/drive/folders/1SEnLiexLW-sE_PAnzz5pXm1iaBe8Aj_u?usp=sharing).
 The LVIS v1.0 is [here](https://www.lvisdataset.org/dataset).
 ```
 mmdetection
