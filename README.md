@@ -2,7 +2,7 @@
 
 Official implementation of:
 
-[Forest R-CNN: Large-Vocabulary Long-Tailed Object Detection and Instance Segmentation](https://cse.buffalo.edu/~jsyuan/papers/2020/Forest_RCNN.pdf)
+[Forest R-CNN: Large-Vocabulary Long-Tailed Object Detection and Instance Segmentation](https://arxiv.org/abs/2008.05676)
 \
 Jialian Wu, Liangchen Song, Tiancai Wang, Qian Zhang and Junsong Yuan
 \
