@@ -49,7 +49,9 @@ python setup.py develop  # or "pip install -v -e ."
 
 ### Prepare datasets
 
-Let's prepare the dataset of LVIS. The images of LVIS are the same as those of COCO. The images and annotations can be download [here](https://www.lvisdataset.org/dataset).
+The images of LVIS are the same as those of COCO. Note that the LVIS version has been updated to v1.0, 
+while our experiments are conducted based on v0.5. We therefore provide the annotations of the LVIS v0.5 that can be found [here]()
+The LVIS v1.0 is [here](https://www.lvisdataset.org/dataset).
 ```
 mmdetection
 ├── mmdet
