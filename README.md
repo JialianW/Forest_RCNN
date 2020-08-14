@@ -67,6 +67,7 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">6.5</td>
 <td align="center">21.6</td>
 <td align="center">28.0</td>
+<td align="center"><a href="https://drive.google.com/file/d/1kSzY8moyGEettNKecmnW0wKDXrcvqmRZ/view?usp=sharing">model</a>&nbsp</td>
 </tr>
 <tr>
 <td align="left">Forest R-CNN</td>
@@ -93,6 +94,7 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">8.7</td>
 <td align="center">23.1</td>
 <td align="center">29.8</td>
+<td align="center"><a href="https://drive.google.com/file/d/1P3Za3hPBUYGLA-5WJZbZRdi9DTsPr5A7/view?usp=sharing">model</a>&nbsp</td>
 </tr>
 <tr>
 <td align="left">Forest R-CNN</td>
@@ -119,6 +121,7 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">8.6</td>
 <td align="center">25.0</td>
 <td align="center">30.9</td>
+<td align="center"><a href="https://drive.google.com/file/d/1Gon4Wwk2Mh7tJmNpze5NS0w6opjNxl-G/view?usp=sharing">model</a>&nbsp</td>
 </tr>
 <tr>
 <td align="left">Forest R-CNN</td>
