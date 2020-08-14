@@ -8,6 +8,8 @@ Jialian Wu, Liangchen Song, Tiancai Wang, Qian Zhang and Junsong Yuan
 \
 In ACM International Conference on Multimedia , Seattle WA, October 12-16, 2020.
 
+Many thanks to [mmdetection](https://github.com/open-mmlab/mmdetection) authors for their great framework!
+
 ## Installation 
 Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparation.
 
