@@ -149,12 +149,11 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 If you find it useful in your research, please consider citing our paper as follows:
 
     @inproceedings{wu2020forest,
-  title={Forest R-CNN: Large-vocabulary long-tailed object detection and instance segmentation},
-  author={Wu, Jialian and Song, Liangchen and Wang, Tiancai and Zhang, Qian and Yuan, Junsong},
-  booktitle={Proceedings of the 28th ACM International Conference on Multimedia},
-  pages={1570--1578},
-  year={2020}
-}
+    title={Forest R-CNN: Large-vocabulary long-tailed object detection and instance segmentation},
+    author={Wu, Jialian and Song, Liangchen and Wang, Tiancai and Zhang, Qian and Yuan, Junsong},
+    booktitle={Proceedings of the 28th ACM International Conference on Multimedia},
+    pages={1570--1578},
+    year={2020}}
 
 
 
