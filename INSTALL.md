@@ -32,7 +32,7 @@ b. Install PyTorch stable or nightly and torchvision following the [official ins
 c. Clone the Forest R-CNN repository.
 
 ```shell
-git clone https://github.com/annonymous1212/Forest_RCNN.git
+git clone https://github.com/JialianW/Forest_RCNN.git
 cd Forest_RCNN
 ```
 
