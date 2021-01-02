@@ -4,7 +4,7 @@ USE_FOREST = True
 WITH_CLASS = not USE_FOREST
 fine_grained_class_num = 1231
 nms_resampling_thresh = np.load('kit/nms_resampling_thresh.npy')
-# modify here to DIY your forest :)
+# modify here to customize your forest :)
 tree1 = np.load('kit/Tree_Visual_25M.npy')
 tree2 = np.load('kit/Tree_Geometrical.npy')   # Recommanded option. It will be used in the mask head
 tree3 = np.load('kit/Tree_Lexical.npy')
