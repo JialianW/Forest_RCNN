@@ -41,7 +41,7 @@ Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparatio
 ### Inference
     # Examples  
     # multi-gpu testing
-    ./tools/dist_test.sh configs/lvis/forest_retinanet_r50_fpn_1x.py forest_rcnn_res50.pth ${GPU_NUM} --out out.pkl --eval bbox segm
+    ./tools/dist_test.sh configs/lvis/forest_retinanet_r50_fpn_1x.py forest_retinanet_res50.pth ${GPU_NUM} --out out.pkl --eval bbox segm
 
 ### Training
     # Examples    
