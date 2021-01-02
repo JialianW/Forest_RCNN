@@ -10,6 +10,12 @@ In ACM International Conference on Multimedia , Seattle WA, October 12-16, 2020.
 
 Many thanks to [mmdetection](https://github.com/open-mmlab/mmdetection) authors for their great framework!
 
+## News
+Jan 1, 2021 Update
+
+We propose Forest DetSeg, an extension of original Forest R-CNN. Forest DetSeg extends the proposed method to RetinaNet.
+The new work is under review now, while the code has been available.
+
 ## Installation 
 Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparation.
 
@@ -34,7 +40,7 @@ The Forest R-CNN config is in [configs/lvis](configs/lvis).
     ./tools/dist_train.sh configs/lvis/forest_rcnn_r50_fpn.py ${GPU_NUM} --validate
 (Note that we found in our experiments the best result comes up around the 20-th epoch instead of the end of training.)
     
-    
+
     
 # Main Results
  
