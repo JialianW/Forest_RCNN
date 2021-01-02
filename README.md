@@ -14,15 +14,12 @@ Many thanks to [mmdetection](https://github.com/open-mmlab/mmdetection) authors 
 Jan 1, 2021 Update
 
 We propose Forest DetSeg, an extension of original Forest R-CNN. Forest DetSeg extends the proposed method to RetinaNet.
-The new work is under review now, while the code has been available.
+While the new work is under review now, the code has been available. More details will come up along with the new paper.
 
 ## Installation 
 Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparation.
 
-
-## Train and inference
-The Forest R-CNN config is in [configs/lvis](configs/lvis).
-
+## Forest R-CNN
 ### Inference
     # Examples
     # single-gpu testing
@@ -40,7 +37,16 @@ The Forest R-CNN config is in [configs/lvis](configs/lvis).
     ./tools/dist_train.sh configs/lvis/forest_rcnn_r50_fpn.py ${GPU_NUM} --validate
 (Note that we found in our experiments the best result comes up around the 20-th epoch instead of the end of training.)
     
+## Forest RetinaNet
+### Inference
+    # Examples  
+    # multi-gpu testing
+    ./tools/dist_test.sh configs/lvis/forest_retinanet_r50_fpn_1x.py forest_rcnn_res50.pth ${GPU_NUM} --out out.pkl --eval bbox segm
 
+### Training
+    # Examples    
+    # multi-gpu training
+    ./tools/dist_train.sh configs/lvis/forest_retinanet_r50_fpn_1x.py ${GPU_NUM} --validate
     
 # Main Results
  
