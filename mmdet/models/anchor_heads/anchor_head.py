@@ -45,7 +45,8 @@ class AnchorHead(nn.Module):
                      use_sigmoid=True,
                      loss_weight=1.0),
                  loss_bbox=dict(
-                     type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0)):
+                     type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
+                 forest_clssifier=None):
         super(AnchorHead, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
@@ -57,6 +58,16 @@ class AnchorHead(nn.Module):
             anchor_strides) if anchor_base_sizes is None else anchor_base_sizes
         self.target_means = target_means
         self.target_stds = target_stds
+
+        if forest_clssifier is not None:
+            self.use_forest = forest_clssifier['use_forest']
+            self.parent_class_num = forest_clssifier['parent_class_num']
+            self.fine_grained_class_num = forest_clssifier['fine_grained_class_num']
+            self.all_classes_num = self.parent_class_num + [self.fine_grained_class_num]
+            self.forest_structure = forest_clssifier['forest_structure']
+            assert len(self.forest_structure) == len(self.parent_class_num)
+        else:
+            self.use_forest = False
 
         self.use_sigmoid_cls = loss_cls.get('use_sigmoid', False)
         self.sampling = loss_cls['type'] not in ['FocalLoss', 'GHMC']
@@ -139,14 +150,36 @@ class AnchorHead(nn.Module):
         return anchor_list, valid_flag_list
 
     def loss_single(self, cls_score, bbox_pred, labels, label_weights,
-                    bbox_targets, bbox_weights, num_total_samples, cfg):
+                    bbox_targets, bbox_weights, num_total_samples, cfg, forest=False):
+
         # classification loss
-        labels = labels.reshape(-1)
-        label_weights = label_weights.reshape(-1)
-        cls_score = cls_score.permute(0, 2, 3,
-                                      1).reshape(-1, self.cls_out_channels)
-        loss_cls = self.loss_cls(
-            cls_score, labels, label_weights, avg_factor=num_total_samples)
+        if isinstance(cls_score, list) and self.use_forest:
+            forest = True
+            labels = labels.reshape(-1)
+            label_weights = label_weights.reshape(-1)
+            gt_label = labels.cpu().numpy()
+
+            parent_loss = []
+            # parent classifier loss
+            for tree_idx in range(len(cls_score) - 1):  # the last prediction is from the fine-grained classifier
+                parent_class_label = self.forest_structure[tree_idx][0, gt_label]
+                parent_class_label = torch.tensor(parent_class_label, device=labels.device)
+
+                parent_cls_score = cls_score[tree_idx].permute(0, 2, 3, 1).reshape(-1, self.all_classes_num[tree_idx]-1)
+                parent_loss_cls = self.loss_cls(parent_cls_score, parent_class_label, label_weights, avg_factor=num_total_samples)
+                parent_loss.append(parent_loss_cls)
+
+            fine_grained_cls_score = cls_score[-1]
+            fine_grained_cls_score = fine_grained_cls_score.permute(0, 2, 3,
+                                          1).reshape(-1, self.cls_out_channels)
+            loss_cls = self.loss_cls(fine_grained_cls_score, labels, label_weights, avg_factor=num_total_samples)
+        else:
+            labels = labels.reshape(-1)
+            label_weights = label_weights.reshape(-1)
+            cls_score = cls_score.permute(0, 2, 3,
+                                          1).reshape(-1, self.cls_out_channels)
+            loss_cls = self.loss_cls(
+                cls_score, labels, label_weights, avg_factor=num_total_samples)
         # regression loss
         bbox_targets = bbox_targets.reshape(-1, 4)
         bbox_weights = bbox_weights.reshape(-1, 4)
@@ -156,7 +189,10 @@ class AnchorHead(nn.Module):
             bbox_targets,
             bbox_weights,
             avg_factor=num_total_samples)
-        return loss_cls, loss_bbox
+        if forest:
+            return loss_cls, loss_bbox, parent_loss, True
+        else:
+            return loss_cls, loss_bbox, None, False
 
     @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
     def loss(self,
@@ -167,10 +203,20 @@ class AnchorHead(nn.Module):
              img_metas,
              cfg,
              gt_bboxes_ignore=None):
-        featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
-        assert len(featmap_sizes) == len(self.anchor_generators)
+        if self.use_forest and isinstance(cls_scores[0], list):
+            featmap_sizes = [featmap[-1].size()[-2:] for featmap in cls_scores]
+            device = cls_scores[0][-1].device
 
-        device = cls_scores[0].device
+            num_im = cls_scores[0][-1].shape[0]
+            anchor_cls_scores = [[] for i in range(num_im)]
+            for i in range(num_im):
+                for j in range(len(cls_scores)):
+                    anchor_cls_scores[i].append(cls_scores[j][-1][i,...].permute(1, 2, 0).reshape(-1, self.cls_out_channels))
+        else:
+            featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
+            device = cls_scores[0].device
+            anchor_cls_scores = None
+        assert len(featmap_sizes) == len(self.anchor_generators)
 
         anchor_list, valid_flag_list = self.get_anchors(
             featmap_sizes, img_metas, device=device)
@@ -186,14 +232,15 @@ class AnchorHead(nn.Module):
             gt_bboxes_ignore_list=gt_bboxes_ignore,
             gt_labels_list=gt_labels,
             label_channels=label_channels,
-            sampling=self.sampling)
+            sampling=self.sampling,
+            cls_scores=anchor_cls_scores)
         if cls_reg_targets is None:
             return None
         (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list,
          num_total_pos, num_total_neg) = cls_reg_targets
         num_total_samples = (
             num_total_pos + num_total_neg if self.sampling else num_total_pos)
-        losses_cls, losses_bbox = multi_apply(
+        losses_cls, losses_bbox, parent_loss, forest = multi_apply(
             self.loss_single,
             cls_scores,
             bbox_preds,
@@ -203,7 +250,19 @@ class AnchorHead(nn.Module):
             bbox_weights_list,
             num_total_samples=num_total_samples,
             cfg=cfg)
-        return dict(loss_cls=losses_cls, loss_bbox=losses_bbox)
+        # print(type(parent_loss), len(parent_loss), len(parent_loss[0]))
+        if forest:
+            all_loss = dict()
+            all_loss['loss_bbox'] = losses_bbox
+            all_loss['loss_fine_grained_cls'] = losses_cls
+            for tree_idx in range(len(self.all_classes_num) - 1):
+                parent_loss_cls = []
+                for i in range(len(parent_loss)):
+                    parent_loss_cls.append(parent_loss[i][tree_idx])
+                all_loss['loss_tree{}_parent_cls'.format(tree_idx + 1)] = parent_loss_cls
+            return all_loss
+        else:
+            return dict(loss_cls=losses_cls, loss_bbox=losses_bbox)
 
     @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
     def get_bboxes(self,
@@ -256,6 +315,21 @@ class AnchorHead(nn.Module):
         if gt_bboxes == None:
             gt_bboxes=[[]]
             gt_labels=[[]]
+        if self.use_forest and isinstance(cls_scores[0], list):
+            assert len(img_metas) == 1
+            fine_grain = []
+            parent_scores = []
+            for i in range(len(cls_scores)):
+                fine_grain.append(cls_scores[i][-1])
+                parent_score_i = []
+                for tree_idx in range(len(self.all_classes_num) - 1):
+                    parent_score_i.append(cls_scores[i][tree_idx][0].detach())
+                parent_scores.append(parent_score_i)
+
+            cls_scores = fine_grain
+        else:
+            parent_scores = None
+
         assert len(cls_scores) == len(bbox_preds)
         # assert len(gt_bboxes[0]) == len(gt_labels[0])
         num_levels = len(cls_scores)
@@ -279,7 +353,7 @@ class AnchorHead(nn.Module):
             scale_factor = img_metas[img_id]['scale_factor']
             proposals = self.get_bboxes_single(cls_score_list, bbox_pred_list,
                                                mlvl_anchors, img_shape,
-                                               scale_factor, cfg, gt_bboxes[img_id], gt_labels[img_id], rescale)
+                                               scale_factor, cfg, gt_bboxes[img_id], gt_labels[img_id], rescale, parent_scores)
             result_list.append(proposals)
         return result_list
 
@@ -292,20 +366,24 @@ class AnchorHead(nn.Module):
                           cfg,
                           gt_bboxes,
                           gt_labels,
-                          rescale=False):
+                          rescale=False,
+                          parent_scores=None):
         """
         Transform outputs for a single batch item into labeled boxes.
         """
         assert len(cls_score_list) == len(bbox_pred_list) == len(mlvl_anchors)
         mlvl_bboxes = []
         mlvl_scores = []
-        for cls_score, bbox_pred, anchors in zip(cls_score_list,
-                                                 bbox_pred_list, mlvl_anchors):
+        for idx, (cls_score, bbox_pred, anchors) in enumerate(zip(cls_score_list,
+                                                 bbox_pred_list, mlvl_anchors)):
             assert cls_score.size()[-2:] == bbox_pred.size()[-2:]
             cls_score = cls_score.permute(1, 2,
                                           0).reshape(-1, self.cls_out_channels)
             if self.use_sigmoid_cls:
-                scores = cls_score.sigmoid()
+                if parent_scores is not None and self.use_forest:
+                    scores = self.get_forest_based_score(cls_score, parent_scores[idx])
+                else:
+                    scores = cls_score.sigmoid()
             else:
                 scores = cls_score.softmax(-1)
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
@@ -336,3 +414,24 @@ class AnchorHead(nn.Module):
                                                 cfg.score_thr, cfg.nms,
                                                 cfg.max_per_img)
         return det_bboxes, det_labels
+
+    def get_forest_based_score(self, fine, parent):
+        calibration = 0
+        for tree_idx in range(len(self.all_classes_num) - 1):
+            parent_probility = parent[tree_idx].permute(1, 2, 0).reshape(-1, self.all_classes_num[tree_idx]-1)
+            parent_probility = parent_probility.sigmoid()
+            parent_probility = parent_probility[:, self.forest_structure[tree_idx][0, 1:]-1]
+            calibration = calibration + parent_probility
+        calibration = calibration / (len(self.all_classes_num) - 1)
+
+        max_id = torch.argmax(fine, dim=1).detach().cpu().numpy()
+        calibrated_score_max = (1 - fine.sigmoid() + calibration) * fine.sigmoid()
+        calibrated_score = torch.log(calibration * torch.exp(fine)).sigmoid()
+        calibrated_score[torch.arange(calibrated_score_max.size(0)), max_id] = calibrated_score_max[torch.arange(calibrated_score_max.size(0)), max_id]
+        # calibrated_score = (calibration * fine).sigmoid()
+        # calibrated_score = torch.log((1 - fine.sigmoid() + calibration) * torch.exp(fine)).sigmoid()
+        # calibrated_score = (1 - fine.sigmoid() + calibration) * fine.sigmoid()
+        # calibrated_score = fine.sigmoid()
+        assert calibrated_score.shape == fine.shape
+
+        return calibrated_score
