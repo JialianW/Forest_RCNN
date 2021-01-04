@@ -62,7 +62,8 @@ class RPNHead(AnchorHead):
                           cfg,
                           gt_bboxes,
                           gt_labels,
-                          rescale=False):
+                          rescale=False,
+                          parent_scores=None):
         mlvl_proposals = []
         for idx in range(len(cls_scores)):
             rpn_cls_score = cls_scores[idx]

@@ -82,6 +82,26 @@ class RetinaHead(AnchorHead):
         self.retina_reg = nn.Conv2d(
             self.feat_channels, self.num_anchors * 4, 3, padding=1)
 
+        if self.use_forest:
+            self.parent_cls_convs = nn.ModuleList()
+            self.parent_cls = nn.ModuleList()
+            for cls_num in self.all_classes_num[:-1]:
+                self.parent_cls_convs.append(
+                    ConvModule(
+                        self.feat_channels,
+                        self.feat_channels,
+                        3,
+                        stride=1,
+                        padding=1,
+                        conv_cfg=self.conv_cfg,
+                        norm_cfg=self.norm_cfg))
+                self.parent_cls.append(nn.Conv2d(
+                    self.feat_channels,
+                    self.num_anchors * (cls_num - 1),
+                    3,
+                    padding=1))
+
+
     def init_weights(self):
         for m in self.cls_convs:
             normal_init(m.conv, std=0.01)
@@ -91,13 +111,35 @@ class RetinaHead(AnchorHead):
         normal_init(self.retina_cls, std=0.01, bias=bias_cls)
         normal_init(self.retina_reg, std=0.01)
 
+        if self.use_forest:
+            for m in self.parent_cls_convs:
+                normal_init(m.conv, std=0.01)
+            for m in self.parent_cls:
+                bias_cls = bias_init_with_prob(0.01)
+                normal_init(m, std=0.01, bias=bias_cls)
+
     def forward_single(self, x):
         cls_feat = x
         reg_feat = x
+        i = 1
         for cls_conv in self.cls_convs:
             cls_feat = cls_conv(cls_feat)
+            if self.use_forest:
+                if i == self.stacked_convs - 1:
+                    cls_feat_mid = cls_feat.detach()
+            i += 1
         for reg_conv in self.reg_convs:
             reg_feat = reg_conv(reg_feat)
-        cls_score = self.retina_cls(cls_feat)
         bbox_pred = self.retina_reg(reg_feat)
+
+        if self.use_forest:
+            cls_score = []
+            # parent
+            for layer1, layer2 in zip(self.parent_cls_convs, self.parent_cls):
+                cls_score.append(layer2(layer1(cls_feat_mid)))
+            # fine-grained
+            cls_score.append(self.retina_cls(cls_feat))
+        else:
+            cls_score = self.retina_cls(cls_feat)
+
         return cls_score, bbox_pred
