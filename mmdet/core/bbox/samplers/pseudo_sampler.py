@@ -41,7 +41,7 @@ class PseudoSampler(BaseSampler):
         assert any(proposals_labels > 0)
         assert proposals.shape[0] == proposals_labels.shape[0]
 
-        thresh = np.load('thresh_discrete.npy')
+        thresh = np.load('kit/nms_resampling_thresh_discrete.npy')
 
         proposals_labels = proposals_labels.detach().cpu().numpy()
         t = thresh[proposals_labels-1]
