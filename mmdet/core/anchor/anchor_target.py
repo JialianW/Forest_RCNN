@@ -15,7 +15,8 @@ def anchor_target(anchor_list,
                   gt_labels_list=None,
                   label_channels=1,
                   sampling=True,
-                  unmap_outputs=True):
+                  unmap_outputs=True,
+                  cls_scores=None):
     """Compute regression and classification targets for anchors.
 
     Args:
@@ -40,6 +41,9 @@ def anchor_target(anchor_list,
         assert len(anchor_list[i]) == len(valid_flag_list[i])
         anchor_list[i] = torch.cat(anchor_list[i])
         valid_flag_list[i] = torch.cat(valid_flag_list[i])
+        if cls_scores is not None:
+            cls_scores[i] = torch.cat(cls_scores[i])
+    # print(len(cls_scores),cls_scores[0].shape, len(anchor_list), anchor_list[0].shape)
 
     # compute targets for each image
     if gt_bboxes_ignore_list is None:
@@ -49,6 +53,7 @@ def anchor_target(anchor_list,
     (all_labels, all_label_weights, all_bbox_targets, all_bbox_weights,
      pos_inds_list, neg_inds_list) = multi_apply(
          anchor_target_single,
+         cls_scores,
          anchor_list,
          valid_flag_list,
          gt_bboxes_list,
@@ -91,7 +96,8 @@ def images_to_levels(target, num_level_anchors):
     return level_targets
 
 
-def anchor_target_single(flat_anchors,
+def anchor_target_single(cls_scores,
+                        flat_anchors,
                          valid_flags,
                          gt_bboxes,
                          gt_bboxes_ignore,
@@ -110,6 +116,7 @@ def anchor_target_single(flat_anchors,
         return (None, ) * 6
     # assign gt and sample anchors
     anchors = flat_anchors[inside_flags, :]
+    cls_scores = cls_scores[inside_flags, :]
 
     if sampling:
         assign_result, sampling_result = assign_and_sample(
@@ -120,7 +127,7 @@ def anchor_target_single(flat_anchors,
                                              gt_bboxes_ignore, gt_labels)
         bbox_sampler = PseudoSampler()
         sampling_result = bbox_sampler.sample(assign_result, anchors,
-                                              gt_bboxes)
+                                              gt_bboxes, gt_labels=gt_labels, cls_scores=cls_scores)
 
     num_valid_anchors = anchors.shape[0]
     bbox_targets = torch.zeros_like(anchors)
