@@ -16,7 +16,7 @@ Jan 1, 2021 Update
 We propose Forest DetSeg, an extension of original Forest R-CNN. Forest DetSeg extends the proposed method to RetinaNet.
 While the new work is under review now, the code has been available. More details will come up along with the new paper.
 
-## Installation 
+## Installation
 Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparation.
 
 ## Forest R-CNN
@@ -36,7 +36,7 @@ Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparatio
     # multi-gpu training
     ./tools/dist_train.sh configs/lvis/forest_rcnn_r50_fpn.py ${GPU_NUM} --validate
 (Note that we found in our experiments the best result comes up around the 20-th epoch instead of the end of training.)
-    
+
 ## Forest RetinaNet
 ### Inference
     # Examples  
@@ -47,9 +47,9 @@ Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparatio
     # Examples    
     # multi-gpu training
     ./tools/dist_train.sh configs/lvis/forest_retinanet_r50_fpn_1x.py ${GPU_NUM} --validate
-    
+
 # Main Results
- 
+
 ## Instance Segmentation on LVIS
 
 AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, frequent contegoires.
@@ -94,7 +94,7 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">16.9</td>
 <td align="center">26.1</td>
 <td align="center">29.2</td>
-<td align="center"><a href="https://www.dropbox.com/s/r6iw74udaon8yas/forest_rcnn_res50.pth?dl=0">model</a>&nbsp</td>
+<td align="center"><a href="https://drive.google.com/file/d/1UJJjDpweSV5YwxYWhkbk5fweYgwD8awK/view?usp=sharing">model</a>&nbsp</td>
 </tr>
 
 <tr>
@@ -121,7 +121,7 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">20.0</td>
 <td align="center">27.5</td>
 <td align="center">30.4</td>
-<td align="center"><a href="https://www.dropbox.com/s/el6xd1gr3p6xyai/forest_rcnn_res101.pth?dl=0">model</a>&nbsp</td>
+<td align="center"><a href="https://drive.google.com/file/d/1f3qwbl2yFrKWrFQx8KMme5WkRoGJiknI/view?usp=sharing">model</a>&nbsp</td>
 </tr>
 
 <tr>
@@ -148,7 +148,7 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">20.6</td>
 <td align="center">29.2</td>
 <td align="center">31.7</td>
-<td align="center"><a href="https://www.dropbox.com/s/4txz2nu1vnmlrqf/forest_rcnn_resnext101.pth?dl=0">model</a>&nbsp</td>
+<td align="center"><a href="https://drive.google.com/file/d/1qxQesUHv6snxeF5IzhvUBSTBO26jCNI1/view?usp=sharing">model</a>&nbsp</td>
 </tr>
 
 </tbody></table>
