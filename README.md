@@ -96,7 +96,6 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">29.2</td>
 <td align="center"><a href="https://drive.google.com/file/d/1UJJjDpweSV5YwxYWhkbk5fweYgwD8awK/view?usp=sharing">model</a>&nbsp</td>
 </tr>
-
 <tr>
 <td align="left">MaskRCNN</td>
 <td align="left">R101-FPN</td>
