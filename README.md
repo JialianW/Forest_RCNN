@@ -14,9 +14,7 @@ Many thanks to [mmdetection](https://github.com/open-mmlab/mmdetection) authors 
 Mar 2, 2021 Update:
 We test Forest R-CNN on LVIS v1.0 set. Thanks for considering comparing with our method :)
 
-Jan 1, 2021 Update:
-
-We propose Forest DetSeg, an extension of original Forest R-CNN. Forest DetSeg extends the proposed method to RetinaNet.
+Jan 1, 2021 Update: We propose Forest DetSeg, an extension of original Forest R-CNN. Forest DetSeg extends the proposed method to RetinaNet.
 While the new work is under review now, the code has been available. More details will come up along with the new paper.
 
 ## Installation
@@ -53,7 +51,7 @@ Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparatio
 
 # Main Results
 
-## Instance Segmentation on LVIS
+## Instance Segmentation on LVIS v0.5 val set
 
 AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, frequent contegoires.
 
@@ -157,6 +155,39 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 
 </tbody></table>
 
+## Instance Segmentation on LVIS v1.0 val set
+<table><tbody>
+<!-- START TABLE -->
+<!-- TABLE HEADER -->
+<th valign="bottom", align="left">Method</th>
+<th valign="bottom", align="left">Backbone</th>
+<th valign="bottom">AP</th>
+<th valign="bottom">AP.r</th>
+<th valign="bottom">AP.c</th>
+<th valign="bottom">AP.f</th>
+<th valign="bottom">AP.b</th>
+
+<!-- TABLE BODY -->
+<tr>
+<td align="left">MaskRCNN</td>
+<td align="left">R50-FPN</td>
+<td align="center">19.2</td>
+<td align="center">0.0</td>
+<td align="center">17.2</td>
+<td align="center">29.5</td>
+<td align="center">20.0</td>
+</tr>
+
+<tr>
+<td align="left">Forest R-CNN</td>
+<td align="left">R50-FPN</td>
+<td align="center">23.2</td>
+<td align="center">14.2</td>
+<td align="center">22.7</td>
+<td align="center">27.7</td>
+<td align="center">24.6</td>
+</tr>
+</tbody></table>
 ## Visualized Examples
 ![](examples.png)
 
