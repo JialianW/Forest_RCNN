@@ -11,7 +11,10 @@ In ACM International Conference on Multimedia , Seattle WA, October 12-16, 2020.
 Many thanks to [mmdetection](https://github.com/open-mmlab/mmdetection) authors for their great framework!
 
 ## News
-Jan 1, 2021 Update
+Mar 2, 2021 Update:
+We test Forest R-CNN on LVIS v1.0 set. Thanks for considering comparing with our method :)
+
+Jan 1, 2021 Update:
 
 We propose Forest DetSeg, an extension of original Forest R-CNN. Forest DetSeg extends the proposed method to RetinaNet.
 While the new work is under review now, the code has been available. More details will come up along with the new paper.
