@@ -188,6 +188,7 @@ AP and AP.b denote the mask AP and box AP. r, c, f represent the rare, common, f
 <td align="center">24.6</td>
 </tr>
 </tbody></table>
+
 ## Visualized Examples
 ![](examples.png)
 
