@@ -1,3 +1,5 @@
+import warnings
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,6 +11,15 @@ from ..registry import HEADS
 from .anchor_head import AnchorHead
 from mmdet.core.bbox.geometry import bbox_overlaps
 import numpy as np
+
+try:
+    from mmcv.utils import ext_loader
+    ext_module = ext_loader.load_ext('_ext', ['nms_clsw'])
+    nms_clsw =  ext_module.nms_clsw
+    _nms_backend='cpp'
+except:
+    warnings.warn('Could not import `nms_clsw` from mmcv. Falling back to Python implementation of NMS-Resampling')
+    _nms_backend='python'
 
 @HEADS.register_module
 class RPNHead(AnchorHead):
@@ -129,8 +140,14 @@ class RPNHead(AnchorHead):
 
         proposals_labels = proposals_labels.cpu().numpy()
         t = thresh[proposals_labels]
-        keep = self.nms_py(proposals.cpu().numpy(), t)
-        keep = np.array(keep)
+        
+        if _nms_backend=="cpp":
+            p_cpu = proposals.cpu()
+            keep = nms_clsw(p_cpu[:,:4], p_cpu[:,4], t, 0)
+            keep = keep.numpy()
+        else:        
+            keep = self.nms_py(proposals.cpu().numpy(), t)
+            keep = np.array(keep)
 
         return proposals[keep, :]
 

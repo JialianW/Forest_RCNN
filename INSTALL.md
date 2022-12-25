@@ -44,8 +44,21 @@ pip install mmcv
 python setup.py develop  # or "pip install -v -e ."
 ```
 
+### Install the C++ implementation of NMS-Resampling
 
+In order to make use of the faster implementation of NMS-Resampling in C++, it is required to install `mmcv` from source. Please note that currently only the linear version is implemented in C++.
 
+In this explanation we will use `mmcv` version `1.6.0`, but the process can be easily adapted to newer versions. 
+
+The following commands **should replace** the third line of the step "d" in the previous section (`pip install mmcv`).
+
+```shell
+git clone --depth 1 --branch v1.6.0 https://github.com/open-mmlab/mmcv.git
+rsync -a mmcv_custom/ ./mmcv
+cd mmcv
+pip install -r requirements/optional.txt
+pip install -e .
+```
 
 ### Prepare datasets
 
